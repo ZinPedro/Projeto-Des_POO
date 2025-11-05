@@ -1,29 +1,38 @@
 package src;
 
 public class GerenciadorDificuldade {
-    private int velocidadeBase = 3;        // Velocidade inicial
-    private int velocidadeAtual = 3;       // Velocidade atual
-    private long tempoInicio;              // Quando começou o jogo
-    private int intervaloAumento = 30000;  // 30 segundos entre aumentos
-    private int incrementoVelocidade = 1;  // Aumenta 1 ponto
-    private long ultimoAumento;            // Último aumento
-
+    private int velocidadeBase = 3;
+    private int velocidadeAtual = 3;
+    private long tempoInicio;
+    private int intervaloAumento = 1000;  // MUDOU: 1 segundo entre verificações
+    private int incrementoVelocidade = 1;
+    private long ultimoAumento;
+    private int segundosDesdeUltimoNivel = 0; // NOVO: contador de segundos
+    
     public GerenciadorDificuldade() {
         this.tempoInicio = System.currentTimeMillis();
         this.ultimoAumento = tempoInicio;
     }
-
+    
     public void atualizar() {
         long tempoAtual = System.currentTimeMillis();
         
-        // Aumenta velocidade a cada 30 segundos
+        // Verifica a cada 1 segundo (em vez de 30)
         if (tempoAtual - ultimoAumento > intervaloAumento) {
-            velocidadeAtual += incrementoVelocidade;
+            segundosDesdeUltimoNivel++; // NOVO: conta segundos
+            
+            // Aumenta velocidade a cada 30 segundos acumulados
+            if (segundosDesdeUltimoNivel >= 30) {
+                velocidadeAtual += incrementoVelocidade;
+                segundosDesdeUltimoNivel = 0; // Reinicia contador
+                System.out.println("Dificuldade aumentada! Velocidade: " + velocidadeAtual);
+            }
+            
             ultimoAumento = tempoAtual;
-            System.out.println("Dificuldade aumentada! Velocidade: " + velocidadeAtual);
         }
     }
-
+    
+    // Resto do código permanece igual...
     public int getVelocidadeAtual() {
         return velocidadeAtual;
     }
@@ -36,9 +45,9 @@ public class GerenciadorDificuldade {
         velocidadeAtual = velocidadeBase;
         tempoInicio = System.currentTimeMillis();
         ultimoAumento = tempoInicio;
+        segundosDesdeUltimoNivel = 0; // NOVO: reset do contador
     }
     
-    // Getter para debug/info
     public int getNivelDificuldade() {
         return velocidadeAtual - velocidadeBase + 1;
     }
