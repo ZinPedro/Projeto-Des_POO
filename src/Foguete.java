@@ -14,7 +14,7 @@ public class Foguete extends ObjetoJogo{
     //p/ pequena animação
     private long ultimoMovimento;
     private boolean frameAlternado;
-    private boolean usandooFallback;
+    private boolean usandoFallback;
 
     //Construtor
     public Foguete(int x, int y){
@@ -32,7 +32,7 @@ public class Foguete extends ObjetoJogo{
 
         this.ultimoMovimento = System.currentTimeMillis();
         this.frameAlternado = false;
-        this.usandooFallback = false;
+        this.usandoFallback = false;
 
         carregarImagem();
 
@@ -63,7 +63,7 @@ public class Foguete extends ObjetoJogo{
             ultimoMovimento = tempoAtual;
         }
 
-        if(usandooFallback){
+        if(usandoFallback){
             criarImagemFallback();
         }
     }
