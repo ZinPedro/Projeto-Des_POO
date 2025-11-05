@@ -2,7 +2,7 @@ package src;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;    
+import javax.swing.*;    
 
 public class Foguete extends ObjetoJogo{
     //atributos foguete
@@ -14,6 +14,7 @@ public class Foguete extends ObjetoJogo{
     //p/ pequena animação
     private long ultimoMovimento;
     private boolean frameAlternado;
+    private boolean usandooFallback;
 
     //Construtor
     public Foguete(int x, int y){
@@ -31,6 +32,7 @@ public class Foguete extends ObjetoJogo{
 
         this.ultimoMovimento = System.currentTimeMillis();
         this.frameAlternado = false;
+        this.usandooFallback = false;
 
         carregarImagem();
 
@@ -60,6 +62,10 @@ public class Foguete extends ObjetoJogo{
             frameAlternado = !frameAlternado;
             ultimoMovimento = tempoAtual;
         }
+
+        if(usandooFallback){
+            criarImagemFallback();
+        }
     }
 
     private void manterDentroTela(){
@@ -86,11 +92,16 @@ public class Foguete extends ObjetoJogo{
             ImageIcon icon = new ImageIcon("imagem/Foguete.png");
             imagem = icon.getImage();   
 
-            if(imagem == null){
-                criarImagemFallback();
+            // Verifica se a imagem foi carregada corretamente
+            if (imagem.getWidth(null) <= 0 || imagem.getHeight(null) <= 0) {
+                throw new Exception("Imagem inválida");
             }
+
+            usandoFallback = false;
+
         } catch (Exception e) {
-            System.out.println("Erro ao carregar imagem do foguete: " + e.getMessage());
+            System.out.println("Erro ao carregar imagem do foguete, usando FallBack: " + e.getMessage());
+            usandoFallback = true;
             criarImagemFallback();
         }
     }
@@ -99,17 +110,20 @@ public class Foguete extends ObjetoJogo{
         // Cria uma imagem simples como fallback
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
+
+        // Suavização
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
         // Corpo do foguete (triângulo)
         g2d.setColor(Color.WHITE);
-        int[] xPoints = {width/2, 0, width};
-        int[] yPoints = {0, height, height};
+        int[] xPoints = {width/2, width/4, 3*width/4};
+        int[] yPoints = {10, height - 10, height - 10};
         g2d.fillPolygon(xPoints, yPoints, 3);
         
         // Chamas (alternando para animação)
-        g2d.setColor(frameAlternado ? Color.ORANGE : Color.YELLOW);
-        int[] chamaXPoints = {width/2, width/4, 3*width/4};
-        int[] chamaYPoints = {height, height + 10, height + 10};
+         g2d.setColor(frameAlternado ? Color.ORANGE : Color.YELLOW);
+        int[] chamaXPoints = {width/2, width/3, 2*width/3};
+        int[] chamaYPoints = {height - 10, height + 5, height + 5};
         g2d.fillPolygon(chamaXPoints, chamaYPoints, 3);
         
         g2d.dispose();
@@ -120,31 +134,14 @@ public class Foguete extends ObjetoJogo{
     public void draw (Graphics g){
         if (!ativo) return;
 
-        //desenha imagem do foguete (se existir)
+        //desenha imagem do foguete (carregada ou Fallback)
         if (imagem != null){
             g.drawImage(imagem, x, y, width, height, null);
-        }else{
-            //Fallback grafico (se nao carregou)
-            desenharFogueteBasico(g);
         }
 
         //mostrar HitBoox (Debug)
         g.setColor(Color.red);
         g.drawRect(x, y, width, height);
-    }
-
-    public void desenharFogueteBasico(Graphics g){
-        // Corpo do foguete (triângulo branco)
-        g.setColor(Color.WHITE);
-        int[] xPoints = {x + width/2, x, x + width};
-        int[] yPoints = {y, y + height, y + height};
-        g.fillPolygon(xPoints, yPoints, 3);
-        
-        // Chamas (animação simples com cores alternadas)
-        g.setColor(frameAlternado ? Color.ORANGE : Color.YELLOW);
-        int[] chamaXPoints = {x + width/2, x + width/4, x + 3*width/4};
-        int[] chamaYPoints = {y + height, y + height + 10, y + height + 10};
-        g.fillPolygon(chamaXPoints, chamaYPoints, 3);
     }
 
     //Getters e Setters
@@ -157,7 +154,7 @@ public class Foguete extends ObjetoJogo{
 
     //aumento de pontos
     public void addPontuacao(int pontos){
-        this.pontuacao = pontos;
+        this.pontuacao += pontos;
     }    
 
     //Perder vidas
