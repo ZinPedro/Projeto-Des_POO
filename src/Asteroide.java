@@ -15,7 +15,7 @@ public class Asteroide extends Obstaculo {
      * Construtor para asteroide com parâmetros específicos
      */
     public Asteroide(int x, int y, int tamanho, int velocidadeX, int velocidadeY, int larguraTela, int alturaTela, int velocidadeScroll) {
-        super(x, y, tamanho, tamanho, velocidadeX, velocidadeY, "src/imagens/asteroide.png", larguraTela, velocidadeScroll);
+        super(x, y, tamanho, tamanho, velocidadeX, velocidadeY, "imagens/asteroide.png", larguraTela, velocidadeScroll);
         this.random = new Random();
         this.tipo = random.nextInt(3);
     }
@@ -24,7 +24,7 @@ public class Asteroide extends Obstaculo {
      * Construtor para asteroide totalmente aleatório
      */
     public Asteroide(int larguraTela, int alturaTela, int velocidadeScroll) {
-        super(0, 0, 0, 0, 0, 0, "src/imagens/asteroide.png", larguraTela, velocidadeScroll);
+        super(0, 0, 0, 0, 0, 0, "imagens/asteroide.png", larguraTela, velocidadeScroll);
         this.random = new Random();
         gerarAsteroideAleatorio(larguraTela, alturaTela, velocidadeScroll);
     }
@@ -74,7 +74,7 @@ public class Asteroide extends Obstaculo {
         this.tipo = random.nextInt(3);
         
         // Tenta carregar imagem específica baseada no tipo
-        carregarImagem("src/imagens/asteroide" + (tipo + 1) + ".png");
+        carregarImagem("imagens/asteroide.png");
     }
 
     /**

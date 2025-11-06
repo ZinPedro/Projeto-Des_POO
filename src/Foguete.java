@@ -48,10 +48,10 @@ public class Foguete extends ObjetoJogo{
             x += velocidadeMovimento;
         }
         if(movCima){
-            y += velocidadeMovimento;
+            y -= velocidadeMovimento;
         }
         if(movBaixo){
-            y -= velocidadeMovimento;
+            y += velocidadeMovimento;
         }
 
         manterDentroTela();
@@ -89,7 +89,7 @@ public class Foguete extends ObjetoJogo{
 
     private void carregarImagem(){
         try { //tenta carregar imagem fogute
-            ImageIcon icon = new ImageIcon("imagem/Foguete.png");
+            ImageIcon icon = new ImageIcon("imagens/Foguete.png");
             imagem = icon.getImage();   
 
             // Verifica se a imagem foi carregada corretamente
@@ -98,6 +98,8 @@ public class Foguete extends ObjetoJogo{
             }
 
             usandoFallback = false;
+            System.out.println("✅ Imagem do foguete carregada!");
+
 
         } catch (Exception e) {
             System.out.println("Erro ao carregar imagem do foguete, usando FallBack: " + e.getMessage());

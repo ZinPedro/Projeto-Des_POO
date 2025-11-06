@@ -1,13 +1,12 @@
 package src;
 
 public class GerenciadorDificuldade {
-    private int velocidadeBase = 3;
-    private int velocidadeAtual = 3;
+    private double velocidadeBase = 3.0;
+    private double velocidadeAtual = 3.0;
     private long tempoInicio;
     private int intervaloAumento = 1000;  // MUDOU: 1 segundo entre verificações
-    private int incrementoVelocidade = 1;
+    private double incrementoVelocidade = 0.033;
     private long ultimoAumento;
-    private int segundosDesdeUltimoNivel = 0; // NOVO: contador de segundos
     
     public GerenciadorDificuldade() {
         this.tempoInicio = System.currentTimeMillis();
@@ -17,23 +16,25 @@ public class GerenciadorDificuldade {
     public void atualizar() {
         long tempoAtual = System.currentTimeMillis();
         
-        // Verifica a cada 1 segundo (em vez de 30)
+        // Aumenta suavemente a cada 1 segundo
         if (tempoAtual - ultimoAumento > intervaloAumento) {
-            segundosDesdeUltimoNivel++; // NOVO: conta segundos
-            
-            // Aumenta velocidade a cada 30 segundos acumulados
-            if (segundosDesdeUltimoNivel >= 30) {
-                velocidadeAtual += incrementoVelocidade;
-                segundosDesdeUltimoNivel = 0; // Reinicia contador
-                System.out.println("Dificuldade aumentada! Velocidade: " + velocidadeAtual);
-            }
-            
+            velocidadeAtual += incrementoVelocidade;
             ultimoAumento = tempoAtual;
+            
+            // Debug opcional (mostra a cada ~5 segundos)
+            if (getTempoJogado() % 5 == 0) {
+                System.out.println("Velocidade: " + String.format("%.2f", velocidadeAtual) + 
+                                 " | Nível: " + getNivelDificuldade());
+            }
         }
     }
     
     // Resto do código permanece igual...
     public int getVelocidadeAtual() {
+        return (int) Math.floor(velocidadeAtual);
+    }
+
+    public double getVelocidadeExata(){
         return velocidadeAtual;
     }
     
@@ -44,11 +45,10 @@ public class GerenciadorDificuldade {
     public void reset() {
         velocidadeAtual = velocidadeBase;
         tempoInicio = System.currentTimeMillis();
-        ultimoAumento = tempoInicio;
-        segundosDesdeUltimoNivel = 0; // NOVO: reset do contador
+        ultimoAumento = tempoInicio;    
     }
     
     public int getNivelDificuldade() {
-        return velocidadeAtual - velocidadeBase + 1;
+        return (int)(velocidadeAtual - velocidadeBase + 1);
     }
 }

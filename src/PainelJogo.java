@@ -44,6 +44,10 @@ public class PainelJogo extends JPanel implements KeyListener{
         // Desenha Obstaculos  
         for (Obstaculo obstaculo : obstaculos) {
             obstaculo.draw(g);
+
+            // DEBUG: Mostrar posição dos asteroides
+            g.setColor(Color.GREEN);
+            g.drawString("A:" + obstaculo.getX() + "," + obstaculo.getY(), obstaculo.getX(), obstaculo.getY() - 10);
         }
 
         // HUD
@@ -53,6 +57,7 @@ public class PainelJogo extends JPanel implements KeyListener{
         g.drawString("Tempo: " + gerenciadorDificuldade.getTempoJogado() + "s", 10, 40);
         g.drawString("Vidas: " + foguete.getVidas(), 10, 60);
         g.drawString("Nível: " + gerenciadorDificuldade.getNivelDificuldade(), 10, 80);
+        g.drawString("Asteroides: " + obstaculos.size(), 10, 100); // DEBUG
     }
 
     private void iniciarGameLoop() {
@@ -78,9 +83,12 @@ public class PainelJogo extends JPanel implements KeyListener{
             obstaculo.setVelocidadeScroll(velocidadeScroll);
             obstaculo.mover();
         }
-        
-        // Remove obstáculos inativos
+
+        int tamanhoAntes = obstaculos.size();
         obstaculos.removeIf(obstaculo -> !obstaculo.isAtivo());
+        if (tamanhoAntes != obstaculos.size()) {
+            //System.out.println("❌ Obstáculos REMOVIDOS: " + (tamanhoAntes - obstaculos.size()));
+        }
         
         // Gera novos obstáculos
         gerarObstaculos();
@@ -96,6 +104,7 @@ public class PainelJogo extends JPanel implements KeyListener{
         if (Math.random() < chance) {
             Asteroide asteroide = new Asteroide(800, 600, velocidadeScroll);
             obstaculos.add(asteroide);
+            //System.out.println("✅ Asteroide GERADO! Total: " + obstaculos.size()); // DEBUG
         }
     }
 
