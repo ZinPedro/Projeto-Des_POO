@@ -5,7 +5,7 @@ import java.awt.event.*;
 
 public class PainelJogo extends JPanel implements KeyListener{
     
-    private Image fundo;
+    private FundoEstrelado fundoEstrelado; // Substitui a imagem de fundo
     private Foguete foguete;
     private GerenciadorDificuldade gerenciadorDificuldade;
     private int velocidadeScroll;
@@ -13,15 +13,17 @@ public class PainelJogo extends JPanel implements KeyListener{
     private Timer gameTimer;
 
     public PainelJogo(){
-        setFocusable(true); //permmite capturar tecllas
-        setDoubleBuffered(true); //suaviza a animação
+        setFocusable(true);
+        setDoubleBuffered(true);
         addKeyListener(this);
 
         // Inicializa gerenciador de dificuldade
         gerenciadorDificuldade = new GerenciadorDificuldade();
         velocidadeScroll = gerenciadorDificuldade.getVelocidadeAtual();
 
-        fundo = new ImageIcon("imagens/fundo-teste.jpg").getImage();  //imagem de fundo 
+        // Inicializa o fundo estrelado (800x600 é o tamanho da tela, 200 estrelas)
+        fundoEstrelado = new FundoEstrelado(800, 600, 200);
+        
         foguete = new Foguete(400,500);
 
         // Lista de obstáculos
@@ -35,8 +37,8 @@ public class PainelJogo extends JPanel implements KeyListener{
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Desenha o fundo
-        g.drawImage(fundo, 0, 0, getWidth(), getHeight(), this);
+        // Desenha o fundo estrelado
+        fundoEstrelado.desenhar(g);
 
         // Desenha foguete
         foguete.draw(g);
@@ -45,7 +47,7 @@ public class PainelJogo extends JPanel implements KeyListener{
         for (Obstaculo obstaculo : obstaculos) {
             obstaculo.draw(g);
 
-            // DEBUG: Mostrar posição dos asteroides
+            // DEBUG: Mostrar posição dos asteroides (opcional)
             g.setColor(Color.GREEN);
             g.drawString("A:" + obstaculo.getX() + "," + obstaculo.getY(), obstaculo.getX(), obstaculo.getY() - 10);
         }
@@ -57,7 +59,7 @@ public class PainelJogo extends JPanel implements KeyListener{
         g.drawString("Tempo: " + gerenciadorDificuldade.getTempoJogado() + "s", 10, 40);
         g.drawString("Vidas: " + foguete.getVidas(), 10, 60);
         g.drawString("Nível: " + gerenciadorDificuldade.getNivelDificuldade(), 10, 80);
-        g.drawString("Asteroides: " + obstaculos.size(), 10, 100); // DEBUG
+        g.drawString("Asteroides: " + obstaculos.size(), 10, 100);
     }
 
     private void iniciarGameLoop() {
@@ -74,6 +76,9 @@ public class PainelJogo extends JPanel implements KeyListener{
         // Atualiza dificuldade
         gerenciadorDificuldade.atualizar();
         velocidadeScroll = gerenciadorDificuldade.getVelocidadeAtual();
+        
+        // Atualiza o fundo com a velocidade atual
+        fundoEstrelado.atualizar(velocidadeScroll);
         
         // Move foguete
         foguete.mover();
@@ -104,7 +109,7 @@ public class PainelJogo extends JPanel implements KeyListener{
         if (Math.random() < chance) {
             Asteroide asteroide = new Asteroide(800, 600, velocidadeScroll);
             obstaculos.add(asteroide);
-            //System.out.println("✅ Asteroide GERADO! Total: " + obstaculos.size()); // DEBUG
+            //System.out.println("✅ Asteroide GERADO! Total: " + obstaculos.size());
         }
     }
 
@@ -126,7 +131,7 @@ public class PainelJogo extends JPanel implements KeyListener{
         System.out.println("Game Over! Pontuação: " + foguete.getPontuacao());
     }
 
-     // Métodos KeyListener...
+     // Métodos KeyListener (mantenha os mesmos)
      @Override
      public void keyPressed(KeyEvent e) {
          int keyCode = e.getKeyCode();
@@ -178,6 +183,5 @@ public class PainelJogo extends JPanel implements KeyListener{
      @Override
      public void keyTyped(KeyEvent e) {
          // Método obrigatório mas não utilizado
-         // Pode deixar vazio
      }
 }
