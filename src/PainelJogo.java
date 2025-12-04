@@ -64,8 +64,20 @@ public class PainelJogo extends JPanel implements KeyListener {
         g.drawString("Vidas: " + foguete.getVidas(), 10, 60);
         g.drawString("Nível: " + gerenciadorDificuldade.getNivelDificuldade(), 10, 80);
         g.drawString("Pontuação: " + foguete.getPontuacao(), 10, 100);
-        g.drawString("Asteroides: " + obstaculos.size(), 10, 120);
 
+        // Contar asteroides e satélites separadamente
+        int asteroides = 0;
+        int satelites = 0;
+        for (Obstaculo obstaculo : obstaculos) {
+            if (obstaculo instanceof Asteroide) {
+                asteroides++;
+            } else if (obstaculo instanceof Satelite) {
+                satelites++;
+            }
+        }
+        g.drawString("Asteroides: " + asteroides, 10, 120);
+        g.drawString("Satélites: " + satelites, 10, 140);
+        
         // Se o jogo estiver pausado, mostra a mensagem
         if (pausado && !gameOver) {
             g.setColor(new Color(0, 0, 0, 180));
@@ -217,10 +229,17 @@ public class PainelJogo extends JPanel implements KeyListener {
     }
 
     private void gerarObstaculos() {
-        double chance = 0.02 + (velocidadeScroll * 0.005);
-        if (Math.random() < chance) {
+        double chanceAsteroide = 0.02 + (velocidadeScroll * 0.005);
+        double chanceSatelite = 0.01 + (velocidadeScroll * 0.003); // Satélites são mais raros
+
+        if (Math.random() < chanceAsteroide) {
             Asteroide asteroide = new Asteroide(800, 600, velocidadeScroll);
             obstaculos.add(asteroide);
+        }
+
+        if (Math.random() < chanceSatelite) {
+            Satelite satelite = new Satelite(800, 600, velocidadeScroll);
+            obstaculos.add(satelite);
         }
     }
 
