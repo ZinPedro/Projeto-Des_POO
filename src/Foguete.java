@@ -142,8 +142,8 @@ public class Foguete extends ObjetoJogo {
         }
 
         // mostrar HitBox (Debug) - descomente se quiser ver
-        // g.setColor(Color.red);
-        // g.drawRect(x, y, width, height);
+        g.setColor(Color.red);
+        g.drawRect(x, y, width, height);
     }
 
     // Getters e Setters

@@ -3,6 +3,8 @@ package src;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;      
 
 public class PainelJogo extends JPanel implements KeyListener {
 
@@ -68,16 +70,20 @@ public class PainelJogo extends JPanel implements KeyListener {
         // Contar asteroides e satélites separadamente
         int asteroides = 0;
         int satelites = 0;
+        int ovnis = 0;
         for (Obstaculo obstaculo : obstaculos) {
             if (obstaculo instanceof Asteroide) {
                 asteroides++;
             } else if (obstaculo instanceof Satelite) {
                 satelites++;
+            } else if (obstaculo instanceof OVNI) {
+                ovnis++;
             }
         }
         g.drawString("Asteroides: " + asteroides, 10, 120);
         g.drawString("Satélites: " + satelites, 10, 140);
-        
+        g.drawString("OVNIs: " + ovnis, 10, 160);
+
         // Se o jogo estiver pausado, mostra a mensagem
         if (pausado && !gameOver) {
             g.setColor(new Color(0, 0, 0, 180));
@@ -230,7 +236,11 @@ public class PainelJogo extends JPanel implements KeyListener {
 
     private void gerarObstaculos() {
         double chanceAsteroide = 0.02 + (velocidadeScroll * 0.005);
-        double chanceSatelite = 0.01 + (velocidadeScroll * 0.003); // Satélites são mais raros
+        double chanceSatelite = 0.01 + (velocidadeScroll * 0.003);
+
+        // OVNIs são MUITO mais raros, especialmente no início
+        // Chance base muito baixa que aumenta pouco com a velocidade
+        double chanceOVNI = 0.0005 + (velocidadeScroll * 0.0002); // Muito reduzido!
 
         if (Math.random() < chanceAsteroide) {
             Asteroide asteroide = new Asteroide(800, 600, velocidadeScroll);
@@ -241,21 +251,72 @@ public class PainelJogo extends JPanel implements KeyListener {
             Satelite satelite = new Satelite(800, 600, velocidadeScroll);
             obstaculos.add(satelite);
         }
+
+        // Conta OVNIs ativos para limitar a 2 por vez
+        int ovnisAtivos = 0;
+        for (Obstaculo obstaculo : obstaculos) {
+            if (obstaculo instanceof OVNI) {
+                ovnisAtivos++;
+            }
+        }
+
+        // Chance ainda menor se já tem um OVNI
+        if (ovnisAtivos == 1) {
+            chanceOVNI *= 0.5; // 50% menos chance se já tem um
+        }
+
+        if (ovnisAtivos < 2 && Math.random() < chanceOVNI) {
+            OVNI ovni = new OVNI(800, 600, velocidadeScroll);
+            obstaculos.add(ovni);
+            System.out.println("OVNI apareceu! Velocidade: " + velocidadeScroll);
+        }
     }
 
     private void verificarColisoes() {
-        for (Obstaculo obstaculo : obstaculos) {
+        // Cria uma cópia da lista para evitar ConcurrentModificationException
+        List<Obstaculo> obstaculosParaVerificar = new ArrayList<>(obstaculos);
+
+        for (Obstaculo obstaculo : obstaculosParaVerificar) {
+            // Verifica colisão entre foguete e obstáculo
             if (foguete.colisao(obstaculo)) {
-                foguete.perderVida();
-                obstaculo.setAtivo(false);
-
-                // Adiciona pequena pontuação por desviar (após perder vida)
-                foguete.addPontuacao(50);
-
-                if (!foguete.estaAtivo()) {
-                    gameOver();
+                // Verifica se é um OVNI (OVNI tem lógica especial)
+                if (obstaculo instanceof OVNI) {
+                    // Foguete colidiu com a nave do OVNI
+                    aplicarDano(obstaculo, true); // true = destroi o OVNI
+                    System.out.println("Foguete colidiu com OVNI!");
+                } else {
+                    // Outros obstáculos (asteroide, satélite)
+                    aplicarDano(obstaculo, true); // true = destroi o obstáculo
                 }
             }
+
+            // Verifica colisão específica com tiros do OVNI
+            if (obstaculo instanceof OVNI) {
+                OVNI ovni = (OVNI) obstaculo;
+                if (ovni.tiroColidiu(foguete)) {
+                    aplicarDano(obstaculo, false); // false = NÃO destroi o OVNI
+                    System.out.println("Foguete atingido por tiro de OVNI!");
+                }
+            }
+        }
+    }
+
+    private void aplicarDano(Obstaculo obstaculo, boolean destruirObstaculo) {
+        foguete.perderVida();
+
+        if (destruirObstaculo) {
+            obstaculo.setAtivo(false);
+        }
+
+        // Adiciona pontuação
+        if (obstaculo instanceof OVNI) {
+            foguete.addPontuacao(100); // Mais pontos por OVNI
+        } else {
+            foguete.addPontuacao(50);
+        }
+
+        if (!foguete.estaAtivo()) {
+            gameOver();
         }
     }
 

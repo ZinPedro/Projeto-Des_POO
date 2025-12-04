@@ -1,12 +1,13 @@
 package src;
+
 import java.awt.*;
 import java.util.Random;
 
 public class Satelite extends Obstaculo {
-    
+
     private static final int TAMANHO_MINIMO = 30;
     private static final int TAMANHO_MAXIMO = 50;
-    
+
     private Random random;
     private int tipo; // Para variação visual
     private int anguloRotacao;
@@ -15,7 +16,8 @@ public class Satelite extends Obstaculo {
     /**
      * Construtor para satélite com parâmetros específicos
      */
-    public Satelite(int x, int y, int tamanho, int velocidadeX, int velocidadeY, int larguraTela, int alturaTela, int velocidadeScroll) {
+    public Satelite(int x, int y, int tamanho, int velocidadeX, int velocidadeY, int larguraTela, int alturaTela,
+            int velocidadeScroll) {
         super(x, y, tamanho, tamanho, velocidadeX, velocidadeY, "imagens/satelite.png", larguraTela, velocidadeScroll);
         this.random = new Random();
         this.tipo = random.nextInt(3);
@@ -41,16 +43,17 @@ public class Satelite extends Obstaculo {
         this.width = tamanho;
         this.height = tamanho;
 
-        // Escolhe um lado da tela para spawnar (0: topo, 1: direita, 2: baixo, 3: esquerda)
+        // Escolhe um lado da tela para spawnar (0: topo, 1: direita, 2: baixo, 3:
+        // esquerda)
         int ladoSpawn = random.nextInt(4);
-        
+
         // Velocidade base compensa o scroll para ficar "parado"
         int velYBase = -velocidadeScrollAtual;
-        
+
         // Movimento vertical aleatório (-1, 0, +1) relativo ao scroll
         int movimentoVertical = random.nextInt(3) - 1;
         this.velocidadeY = velYBase + movimentoVertical;
-        
+
         // Velocidade horizontal aleatória (-1 a +1) - satélites são mais lentos
         this.velocidadeX = random.nextInt(3) - 1;
 
@@ -77,7 +80,7 @@ public class Satelite extends Obstaculo {
         this.tipo = random.nextInt(3);
         this.anguloRotacao = random.nextInt(360);
         this.velocidadeRotacao = (random.nextDouble() - 0.5) * 3.0;
-        
+
         // Tenta carregar imagem específica baseada no tipo
         carregarImagem("imagens/satelite.png");
     }
@@ -87,16 +90,19 @@ public class Satelite extends Obstaculo {
      */
     @Override
     public void mover() {
-        if (!ativo) return;
+        if (!ativo)
+            return;
 
         // Movimento nas duas direções (já inclui velocidadeScroll no Y)
         this.x += this.velocidadeX;
         this.y += this.velocidadeY + this.velocidadeScroll;
-        
+
         // Atualiza rotação
         anguloRotacao += velocidadeRotacao;
-        if (anguloRotacao >= 360) anguloRotacao -= 360;
-        if (anguloRotacao < 0) anguloRotacao += 360;
+        if (anguloRotacao >= 360)
+            anguloRotacao -= 360;
+        if (anguloRotacao < 0)
+            anguloRotacao += 360;
 
         // Lógica de "wrap-around" para todas as direções
         if (this.velocidadeX > 0 && this.x > larguraTela) {
@@ -104,7 +110,7 @@ public class Satelite extends Obstaculo {
         } else if (this.velocidadeX < 0 && this.x + this.width < 0) {
             this.x = larguraTela;
         }
-        
+
         // Para movimento vertical (usa altura da tela do Obstaculo como referência)
         if (this.y > 600) { // 600 = altura assumida da tela
             this.ativo = false;
@@ -118,14 +124,15 @@ public class Satelite extends Obstaculo {
      */
     @Override
     public void draw(Graphics g) {
-        if (!ativo) return;
+        if (!ativo)
+            return;
 
         Graphics2D g2d = (Graphics2D) g.create();
-        
+
         // Centraliza a rotação no centro do satélite
         int centroX = this.x + this.width / 2;
         int centroY = this.y + this.height / 2;
-        
+
         g2d.translate(centroX, centroY);
         g2d.rotate(Math.toRadians(anguloRotacao));
         g2d.translate(-centroX, -centroY);
@@ -137,7 +144,13 @@ public class Satelite extends Obstaculo {
             // Fallback gráfico - desenha como cruz
             desenharCruz(g2d);
         }
-        
+
+        // DEBUG: Mostra hitbox do satélite - 
+        /* 
+        g2d.setColor(Color.YELLOW);
+        g2d.drawRect(this.x, this.y, this.width, this.height);
+        */
+       
         g2d.dispose();
     }
 
@@ -146,58 +159,57 @@ public class Satelite extends Obstaculo {
      */
     private void desenharCruz(Graphics2D g2d) {
         // Cor base do satélite
-        Color[] cores = {Color.CYAN, Color.LIGHT_GRAY, new Color(100, 150, 255)};
+        Color[] cores = { Color.CYAN, Color.LIGHT_GRAY, new Color(100, 150, 255) };
         g2d.setColor(cores[tipo % cores.length]);
-        
+
         // Corpo principal do satélite (círculo central)
         int centroX = this.x + this.width / 2;
         int centroY = this.y + this.height / 2;
         int raio = this.width / 4;
-        
+
         g2d.fillOval(centroX - raio, centroY - raio, raio * 2, raio * 2);
-        
+
         // Braços da cruz
         int bracoLargura = this.width / 6;
         int bracoComprimento = this.width / 2;
-        
+
         // Braço horizontal
-        g2d.fillRect(this.x + (this.width - bracoComprimento) / 2, 
-                     centroY - bracoLargura / 2, 
-                     bracoComprimento, bracoLargura);
-        
+        g2d.fillRect(this.x + (this.width - bracoComprimento) / 2,
+                centroY - bracoLargura / 2,
+                bracoComprimento, bracoLargura);
+
         // Braço vertical
-        g2d.fillRect(centroX - bracoLargura / 2, 
-                     this.y + (this.height - bracoComprimento) / 2, 
-                     bracoLargura, bracoComprimento);
-        
+        g2d.fillRect(centroX - bracoLargura / 2,
+                this.y + (this.height - bracoComprimento) / 2,
+                bracoLargura, bracoComprimento);
+
         // Painéis solares (retângulos nas pontas)
         g2d.setColor(new Color(200, 230, 255));
         int painelLargura = this.width / 8;
-        int painelComprimento = this.width / 3;
-        
+
         // Painéis horizontais
-        g2d.fillRect(this.x - painelLargura, centroY - painelLargura / 2, 
-                     painelLargura, painelLargura);
-        g2d.fillRect(this.x + this.width, centroY - painelLargura / 2, 
-                     painelLargura, painelLargura);
-        
+        g2d.fillRect(this.x - painelLargura, centroY - painelLargura / 2,
+                painelLargura, painelLargura);
+        g2d.fillRect(this.x + this.width, centroY - painelLargura / 2,
+                painelLargura, painelLargura);
+
         // Painéis verticais
-        g2d.fillRect(centroX - painelLargura / 2, this.y - painelLargura, 
-                     painelLargura, painelLargura);
-        g2d.fillRect(centroX - painelLargura / 2, this.y + this.height, 
-                     painelLargura, painelLargura);
-        
+        g2d.fillRect(centroX - painelLargura / 2, this.y - painelLargura,
+                painelLargura, painelLargura);
+        g2d.fillRect(centroX - painelLargura / 2, this.y + this.height,
+                painelLargura, painelLargura);
+
         // Detalhes/antenas
         g2d.setColor(Color.WHITE);
         g2d.setStroke(new BasicStroke(2f));
-        
+
         // Antenas nas pontas
         int antenaComprimento = this.width / 4;
         g2d.drawLine(this.x, centroY, this.x - antenaComprimento, centroY);
         g2d.drawLine(this.x + this.width, centroY, this.x + this.width + antenaComprimento, centroY);
         g2d.drawLine(centroX, this.y, centroX, this.y - antenaComprimento);
         g2d.drawLine(centroX, this.y + this.height, centroX, this.y + this.height + antenaComprimento);
-        
+
         // Contorno
         g2d.setColor(Color.WHITE);
         g2d.setStroke(new BasicStroke(1f));
@@ -210,15 +222,15 @@ public class Satelite extends Obstaculo {
     public int getTamanho() {
         return this.width;
     }
-    
+
     public int getTipo() {
         return this.tipo;
     }
-    
+
     public int getAnguloRotacao() {
         return this.anguloRotacao;
     }
-    
+
     public double getVelocidadeRotacao() {
         return this.velocidadeRotacao;
     }
