@@ -1,20 +1,22 @@
 package src;
+
 import java.awt.*;
 import java.util.Random;
 
 public class Asteroide extends Obstaculo {
-    
+
     private static final int TAMANHO_MINIMO = 20;
     private static final int TAMANHO_MAXIMO = 60;
-    //private static final int VELOCIDADE_MAXIMA = 4;
-    
+    // private static final int VELOCIDADE_MAXIMA = 4;
+
     private Random random;
     private int tipo; // Para variação visual futura
 
     /**
      * Construtor para asteroide com parâmetros específicos
      */
-    public Asteroide(int x, int y, int tamanho, int velocidadeX, int velocidadeY, int larguraTela, int alturaTela, int velocidadeScroll) {
+    public Asteroide(int x, int y, int tamanho, int velocidadeX, int velocidadeY, int larguraTela, int alturaTela,
+            int velocidadeScroll) {
         super(x, y, tamanho, tamanho, velocidadeX, velocidadeY, "imagens/asteroide.png", larguraTela, velocidadeScroll);
         this.random = new Random();
         this.tipo = random.nextInt(3);
@@ -38,16 +40,17 @@ public class Asteroide extends Obstaculo {
         this.width = tamanho;
         this.height = tamanho;
 
-        // Escolhe um lado da tela para spawnar (0: topo, 1: direita, 2: baixo, 3: esquerda)
+        // Escolhe um lado da tela para spawnar (0: topo, 1: direita, 2: baixo, 3:
+        // esquerda)
         int ladoSpawn = random.nextInt(4);
-        
+
         // Velocidade base compensa o scroll para ficar "parado"
         int velYBase = -velocidadeScrollAtual;
-        
+
         // Movimento vertical aleatório (-1, 0, +1) relativo ao scroll
         int movimentoVertical = random.nextInt(3) - 1;
         this.velocidadeY = velYBase + movimentoVertical;
-        
+
         // Velocidade horizontal aleatória (-2 a +2)
         this.velocidadeX = random.nextInt(5) - 2;
 
@@ -72,7 +75,7 @@ public class Asteroide extends Obstaculo {
         }
 
         this.tipo = random.nextInt(3);
-        
+
         // Tenta carregar imagem específica baseada no tipo
         carregarImagem("imagens/asteroide.png");
     }
@@ -82,7 +85,8 @@ public class Asteroide extends Obstaculo {
      */
     @Override
     public void mover() {
-        if (!ativo) return;
+        if (!ativo)
+            return;
 
         // Movimento nas duas direções (já inclui velocidadeScroll no Y)
         this.x += this.velocidadeX;
@@ -94,7 +98,7 @@ public class Asteroide extends Obstaculo {
         } else if (this.velocidadeX < 0 && this.x + this.width < 0) {
             this.x = larguraTela;
         }
-        
+
         // Para movimento vertical (usa altura da tela do Obstaculo como referência)
         if (this.y > 600) { // 600 = altura assumida da tela
             this.ativo = false;
@@ -108,7 +112,8 @@ public class Asteroide extends Obstaculo {
      */
     @Override
     public void draw(Graphics g) {
-        if (!ativo) return;
+        if (!ativo)
+            return;
 
         if (this.imagem != null) {
             // Desenha a imagem carregada
@@ -124,12 +129,12 @@ public class Asteroide extends Obstaculo {
      */
     private void desenharCirculo(Graphics g) {
         // Cor base do asteroide
-        Color[] cores = {Color.GRAY, Color.DARK_GRAY, Color.LIGHT_GRAY};
+        Color[] cores = { Color.GRAY, Color.DARK_GRAY, Color.LIGHT_GRAY };
         g.setColor(cores[tipo % cores.length]);
-        
+
         // Corpo principal do asteroide
         g.fillOval(this.x, this.y, this.width, this.height);
-        
+
         // Detalhes/crateras
         g.setColor(Color.BLACK);
         int numCrateras = 2 + random.nextInt(3);
@@ -139,7 +144,7 @@ public class Asteroide extends Obstaculo {
             int tamanhoCratera = 3 + random.nextInt(5);
             g.fillOval(crateraX, crateraY, tamanhoCratera, tamanhoCratera);
         }
-        
+
         // Contorno
         g.setColor(Color.BLACK);
         g.drawOval(this.x, this.y, this.width, this.height);
@@ -151,11 +156,11 @@ public class Asteroide extends Obstaculo {
     public int getTamanho() {
         return this.width;
     }
-    
+
     public int getTipo() {
         return this.tipo;
     }
-    
+
     public double getVelocidade() {
         return Math.sqrt(velocidadeX * velocidadeX + velocidadeY * velocidadeY);
     }

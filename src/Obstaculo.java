@@ -1,14 +1,16 @@
 package src;
+
 import java.awt.*;
 
 public class Obstaculo extends ObjetoJogo {
 
     // Guarda a largura da tela para saber quando "dar a volta"
     public int larguraTela;
-    
+
     protected int velocidadeScroll;
 
-    public Obstaculo(int x, int y, int width, int height, int velocidadeX, int velocidadeY, String caminhoImagem, int larguraTela, int velocidadeScroll) {
+    public Obstaculo(int x, int y, int width, int height, int velocidadeX, int velocidadeY, String caminhoImagem,
+            int larguraTela, int velocidadeScroll) {
         super(x, y, width, height);
         this.velocidadeX = velocidadeX;
         this.velocidadeY = velocidadeY;
@@ -26,7 +28,8 @@ public class Obstaculo extends ObjetoJogo {
      */
     @Override
     public void mover() {
-        if (!ativo) return; // Se não estiver ativo, não faz nada
+        if (!ativo)
+            return; // Se não estiver ativo, não faz nada
 
         this.x += this.velocidadeX;
         this.y += this.velocidadeY + this.velocidadeScroll;
@@ -37,7 +40,7 @@ public class Obstaculo extends ObjetoJogo {
         } else if (this.x + this.width < 0) {
             this.x = larguraTela;
         }
-        
+
         if (this.y > 600) {
             this.ativo = false;
         }
@@ -48,7 +51,8 @@ public class Obstaculo extends ObjetoJogo {
      */
     @Override
     public void draw(Graphics g) {
-        if (!ativo) return; // Se não estiver ativo, não desenha
+        if (!ativo)
+            return; // Se não estiver ativo, não desenha
 
         if (this.imagem != null) {
             // Desenha a imagem carregada
@@ -59,7 +63,7 @@ public class Obstaculo extends ObjetoJogo {
             g.fillRect(this.x, this.y, this.width, this.height);
             g.setColor(Color.RED);
             g.drawRect(this.x, this.y, this.width, this.height);
-            g.drawString("X", x + width/2 - 4, y + height/2 + 5);
+            g.drawString("X", x + width / 2 - 4, y + height / 2 + 5);
         }
     }
 }
